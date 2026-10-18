@@ -1,38 +1,16 @@
 /* ==========================================================================
-   Coxy — Cinematic Scroll Animation Styles
+   COXY — Coastal Cinematic Scroll & Editorial Styling
    ========================================================================== */
 
-:root {
-  --bg-color: #07090e;
-  --bg-card: rgba(15, 20, 28, 0.72);
-  --accent-gold: #f59e0b;
-  --accent-sunset: #f97316;
-  --accent-amber: #fbbf24;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border-glass: rgba(255, 255, 255, 0.1);
-  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* Hide default browser scrollbar for ultra-clean presentation */
+::-webkit-scrollbar {
+  display: none;
 }
 
 html {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  font-family: var(--font-body);
+  scroll-behavior: smooth;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-}
-
-body {
-  overflow-x: hidden;
-  background-color: var(--bg-color);
 }
 
 /* ==========================================================================
@@ -41,12 +19,12 @@ body {
 .preloader {
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  background-color: #06080d;
+  z-index: 99999;
+  background-color: #0b2027;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.8s var(--ease-cinematic), visibility 0.8s var(--ease-cinematic);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .preloader.fade-out {
@@ -66,20 +44,20 @@ body {
 }
 
 .brand-sub {
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  letter-spacing: 0.35em;
-  color: var(--accent-gold);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: #79f7e3;
   text-transform: uppercase;
   font-weight: 600;
 }
 
 .loader-title {
-  font-family: var(--font-heading);
-  font-size: 2.75rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.8rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 40%, #fdba74 80%, #f59e0b 100%);
+  background: linear-gradient(135deg, #ffffff 40%, #79f7e3 80%, #006b5f 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -87,7 +65,7 @@ body {
 .progress-bar-container {
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
@@ -97,8 +75,8 @@ body {
 .progress-bar {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #f59e0b, #f97316, #fbbf24);
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.7);
+  background: linear-gradient(90deg, #006b5f, #79f7e3, #fbbf24);
+  box-shadow: 0 0 16px rgba(121, 247, 227, 0.8);
   transition: width 0.15s ease-out;
   border-radius: 999px;
 }
@@ -108,35 +86,20 @@ body {
   display: flex;
   justify-content: space-between;
   font-size: 0.8rem;
-  color: var(--text-muted);
-  font-family: var(--font-body);
+  color: #b4cad3;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 #loader-percent {
   font-weight: 600;
-  color: #fff;
+  color: #ffffff;
 }
 
 /* ==========================================================================
-   Main Scroll Wrapper & Sticky Canvas
+   Hero Scrollable Cinematic Section
    ========================================================================== */
-.scroll-wrapper {
-  position: relative;
-  height: 600vh; /* Smooth, continuous cinematic scrolling */
-  width: 100%;
-}
-
-.canvas-sticky-container {
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #000;
+.hero-scroll-track {
+  height: 420vh; /* Smooth, continuous cinematic scrolling through 240 frames */
 }
 
 #sequence-canvas {
@@ -148,157 +111,91 @@ body {
   display: block;
 }
 
-/* Cinematic Overlays */
 .cinematic-vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center, transparent 45%, rgba(4, 6, 11, 0.5) 100%);
+  background: radial-gradient(circle at center, transparent 40%, rgba(11, 32, 39, 0.7) 100%);
   z-index: 2;
 }
 
 /* ==========================================================================
-   Scrollytelling Narrative Layers
+   Transparent / Glassmorphism Navigation
    ========================================================================== */
-.narrative-layer {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  padding: 0 8vw;
-  z-index: 10;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+.navbar-glass {
+  background: rgba(11, 32, 39, 0.28) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
 }
 
-.narrative-layer.active {
-  opacity: 1;
-  transform: translateY(0);
+/* Nav links in transparent hero state */
+.navbar-glass:not(.header-scrolled-past-hero) .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
-#story-1 { justify-content: flex-start; }
-#story-2 { justify-content: flex-end; }
-#story-3 { justify-content: flex-start; }
-#story-4 { justify-content: center; text-align: center; }
-
-.narrative-card {
-  max-width: 480px;
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-glass);
-  padding: 32px 36px;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-#story-4 .narrative-card {
-  max-width: 580px;
-}
-
-.meta-tag {
-  font-family: var(--font-heading);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--accent-gold);
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.narrative-card h2 {
-  font-family: var(--font-heading);
-  font-size: 2.2rem;
-  font-weight: 700;
-  line-height: 1.15;
-  margin-bottom: 14px;
+.navbar-glass:not(.header-scrolled-past-hero) .nav-link:hover {
   color: #ffffff;
-  letter-spacing: -0.015em;
 }
 
-.narrative-card p {
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: #cbd5e1;
+.navbar-glass:not(.header-scrolled-past-hero) .nav-link.active-link {
+  color: #79f7e3 !important;
 }
 
-/* ==========================================================================
-   Scroll Prompt Indicator
-   ========================================================================== */
-.scroll-prompt {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  z-index: 15;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.5s ease;
+.navbar-glass:not(.header-scrolled-past-hero) .header-brand-text {
+  color: #ffffff !important;
 }
 
-.scroll-prompt.hidden {
-  opacity: 0;
+.navbar-glass:not(.header-scrolled-past-hero) #mobile-nav-toggle {
+  color: #ffffff !important;
 }
 
-.mouse-icon {
-  width: 22px;
-  height: 36px;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
-  position: relative;
+/* When scrolled past hero into light content sections */
+.navbar-glass.header-scrolled-past-hero {
+  background: rgba(252, 249, 244, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(11, 32, 39, 0.08) !important;
+  box-shadow: 0 10px 30px -10px rgba(11, 32, 39, 0.12) !important;
 }
 
-.mouse-wheel {
-  width: 3px;
-  height: 6px;
-  background-color: var(--accent-gold);
-  border-radius: 2px;
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  animation: mouseScroll 1.6s infinite ease-in-out;
+.navbar-glass.header-scrolled-past-hero .nav-link {
+  color: #42484a !important;
 }
 
-@keyframes mouseScroll {
-  0% { transform: translate(-50%, 0); opacity: 1; }
-  80% { transform: translate(-50%, 12px); opacity: 0; }
-  100% { transform: translate(-50%, 0); opacity: 0; }
+.navbar-glass.header-scrolled-past-hero .nav-link:hover {
+  color: #1c1c19 !important;
 }
 
-.scroll-prompt span {
-  font-family: var(--font-heading);
-  font-size: 0.68rem;
-  letter-spacing: 0.25em;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 600;
+.navbar-glass.header-scrolled-past-hero .nav-link.active-link {
+  color: #006b5f !important;
 }
 
-/* ==========================================================================
-   Responsive Adaptations
-   ========================================================================== */
-@media (max-width: 900px) {
-  .narrative-layer {
-    padding: 0 5vw;
-  }
-
-  .narrative-card h2 {
-    font-size: 1.7rem;
-  }
+.navbar-glass.header-scrolled-past-hero .header-brand-text {
+  color: #0b2027 !important;
 }
 
-@media (max-width: 600px) {
-  .narrative-card {
-    padding: 24px 20px;
-  }
-
-  .narrative-card h2 {
-    font-size: 1.4rem;
-  }
+/* Logo transitions between hero (white) and scrolled (dark) */
+.navbar-glass:not(.header-scrolled-past-hero) .site-logo-white {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
+
+.navbar-glass:not(.header-scrolled-past-hero) .site-logo-dark {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.navbar-glass.header-scrolled-past-hero .site-logo-white {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.navbar-glass.header-scrolled-past-hero .site-logo-dark {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+

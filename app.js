@@ -1,6 +1,6 @@
 /**
- * Coxy — Cinematic Scroll Animation Engine
- * 240 Full HD Frames smoothly scrubbed via HTML5 Canvas & LERP physics
+ * COXY — Coastal Experience & Cinematic Scroll Animation Engine
+ * Preloads 240 Full HD Frames and scrubs via GPU-accelerated HTML5 Canvas & LERP physics
  */
 
 (() => {
@@ -17,15 +17,18 @@
   const loaderPercent = document.getElementById('loader-percent');
   const loaderFrames = document.getElementById('loader-frames');
 
-  const scrollWrapper = document.getElementById('scroll-wrapper');
+  const heroSection = document.getElementById('home');
   const canvas = document.getElementById('sequence-canvas');
   const ctx = canvas.getContext('2d', { alpha: false });
-  const scrollPrompt = document.getElementById('scroll-prompt');
 
-  const story1 = document.getElementById('story-1');
-  const story2 = document.getElementById('story-2');
-  const story3 = document.getElementById('story-3');
-  const story4 = document.getElementById('story-4');
+  const heroContent = document.getElementById('hero-content');
+  const heroBottomBar = document.getElementById('hero-bottom-bar');
+  const heroCinematicCaption = document.getElementById('hero-cinematic-caption');
+  const cinematicCaptionText = document.getElementById('cinematic-caption-text');
+  const mainHeader = document.getElementById('main-header');
+
+  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+  const mobileDrawer = document.getElementById('mobile-drawer');
 
   // --- State Variables ---
   const frames = [];
@@ -42,6 +45,7 @@
 
   // --- Canvas Sizing & Drawing ---
   function resizeCanvas() {
+    if (!canvas) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -56,8 +60,9 @@
     ctx.imageSmoothingQuality = 'high';
 
     // Force redraw current frame
-    if (frames[Math.round(currentFrameIndex)] && frames[Math.round(currentFrameIndex)].complete) {
-      drawFrame(Math.round(currentFrameIndex));
+    const activeFrame = Math.round(currentFrameIndex);
+    if (frames[activeFrame] && frames[activeFrame].complete) {
+      drawFrame(activeFrame);
     }
   }
 
@@ -105,7 +110,7 @@
         if (loaderPercent) loaderPercent.textContent = `${percent}%`;
         if (loaderFrames) loaderFrames.textContent = `Loaded ${loadedCount} of ${TOTAL_FRAMES} frames`;
 
-        // Draw initial frame as soon as frame 0 is ready
+        // Render initial frame immediately once frame 0 is ready
         if (i === 0) {
           drawFrame(0);
         }
@@ -135,39 +140,87 @@
     }, 300);
   }
 
-  // --- Scroll & Storytelling Progress ---
+  // --- Scroll & Hero View Interaction ---
   function updateScrollProgress() {
-    const scrollMax = scrollWrapper.offsetHeight - window.innerHeight;
-    if (scrollMax <= 0) return;
+    if (!heroSection) return;
+
+    const heroMaxScroll = heroSection.offsetHeight - window.innerHeight;
+    if (heroMaxScroll <= 0) return;
 
     const scrollY = window.scrollY;
-    const fraction = Math.min(Math.max(scrollY / scrollMax, 0), 1);
+    const fraction = Math.min(Math.max(scrollY / heroMaxScroll, 0), 1);
 
     targetFrameIndex = fraction * (TOTAL_FRAMES - 1);
 
-    // Prompt visibility
-    if (scrollPrompt) {
-      if (fraction > 0.03) {
-        scrollPrompt.classList.add('hidden');
-      } else {
-        scrollPrompt.classList.remove('hidden');
+    // Hero Text & Caption Transitions based on scroll fraction
+    if (fraction < 0.12) {
+      if (heroContent) {
+        heroContent.style.opacity = '1';
+        heroContent.style.pointerEvents = 'auto';
+        heroContent.style.transform = 'translateY(0)';
+      }
+      if (heroBottomBar) {
+        heroBottomBar.style.opacity = '1';
+        heroBottomBar.style.pointerEvents = 'auto';
+      }
+      if (heroCinematicCaption) {
+        heroCinematicCaption.style.opacity = '0';
+      }
+    } else if (fraction >= 0.12 && fraction < 0.32) {
+      const fadeProgress = (fraction - 0.12) / 0.2;
+      const opacity = Math.max(0, 1 - fadeProgress);
+      if (heroContent) {
+        heroContent.style.opacity = opacity.toFixed(2);
+        heroContent.style.pointerEvents = opacity > 0.4 ? 'auto' : 'none';
+        heroContent.style.transform = `translateY(-${(fadeProgress * 24).toFixed(1)}px)`;
+      }
+      if (heroBottomBar) {
+        heroBottomBar.style.opacity = opacity.toFixed(2);
+        heroBottomBar.style.pointerEvents = opacity > 0.4 ? 'auto' : 'none';
+      }
+      if (heroCinematicCaption) {
+        heroCinematicCaption.style.opacity = '0';
+      }
+    } else if (fraction >= 0.32 && fraction < 0.94) {
+      if (heroContent) {
+        heroContent.style.opacity = '0';
+        heroContent.style.pointerEvents = 'none';
+      }
+      if (heroBottomBar) {
+        heroBottomBar.style.opacity = '0';
+        heroBottomBar.style.pointerEvents = 'none';
+      }
+      if (heroCinematicCaption) {
+        heroCinematicCaption.style.opacity = '1';
+        if (cinematicCaptionText) {
+          if (fraction < 0.52) {
+            cinematicCaptionText.textContent = "Bay of Bengal • Echoes of the Sampan";
+          } else if (fraction < 0.76) {
+            cinematicCaptionText.textContent = "Inani Coastline • Solitude by the Shore";
+          } else {
+            cinematicCaptionText.textContent = "Golden Sunset • Towards the Open Sea";
+          }
+        }
+      }
+    } else {
+      // Near end of hero scroll track - transition cleanly into next section
+      if (heroCinematicCaption) {
+        heroCinematicCaption.style.opacity = '0';
       }
     }
 
-    // Storytelling narrative milestones
-    updateNarrativeLayers(fraction);
-  }
-
-  function updateNarrativeLayers(fraction) {
-    if (story1) story1.classList.toggle('active', fraction >= 0.02 && fraction <= 0.22);
-    if (story2) story2.classList.toggle('active', fraction >= 0.26 && fraction <= 0.48);
-    if (story3) story3.classList.toggle('active', fraction >= 0.52 && fraction <= 0.74);
-    if (story4) story4.classList.toggle('active', fraction >= 0.78 && fraction <= 0.98);
+    // Adaptive header background
+    if (mainHeader) {
+      if (scrollY > heroMaxScroll - 60) {
+        mainHeader.classList.add('header-scrolled-past-hero');
+      } else {
+        mainHeader.classList.remove('header-scrolled-past-hero');
+      }
+    }
   }
 
   // --- Smooth LERP Animation Loop ---
   function animationLoop() {
-    // Linear interpolation towards target frame
     const diff = targetFrameIndex - currentFrameIndex;
     if (Math.abs(diff) > 0.001) {
       currentFrameIndex += diff * 0.16;
@@ -184,6 +237,56 @@
 
     requestAnimationFrame(animationLoop);
   }
+
+  // --- Mobile Navigation Drawer ---
+  if (mobileNavToggle && mobileDrawer) {
+    mobileNavToggle.addEventListener('click', () => {
+      mobileDrawer.classList.toggle('hidden');
+    });
+
+    mobileDrawer.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileDrawer.classList.add('hidden');
+      });
+    });
+  }
+
+  // --- Contact Form Submission Handler ---
+  window.handleFormSubmit = function() {
+    const feedback = document.getElementById('form-feedback');
+    const btn = document.getElementById('submit-btn');
+    const form = document.getElementById('contact-form');
+    if (feedback && btn && form) {
+      btn.disabled = true;
+      btn.classList.add('opacity-75');
+      feedback.classList.remove('hidden');
+      feedback.textContent = "Thank you! Your message has been received by our editorial team.";
+      setTimeout(() => {
+        form.reset();
+        btn.disabled = false;
+        btn.classList.remove('opacity-75');
+        feedback.classList.add('hidden');
+      }, 3500);
+    }
+  };
+
+  // --- Scroll Reveal Transitions ---
+  document.addEventListener('DOMContentLoaded', () => {
+    const observerOptions = { threshold: 0.1 };
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          entry.target.classList.remove('opacity-0', 'translate-y-4');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('section:not(#home)').forEach(sec => {
+      sec.classList.add('transition-all', 'duration-700');
+      revealObserver.observe(sec);
+    });
+  });
 
   // --- Event Listeners ---
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
