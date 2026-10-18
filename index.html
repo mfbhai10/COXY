@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coxy — Cox's Bazar Cinematic Scroll Animation</title>
-  <meta name="description" content="An interactive cinematic scroll experience showcasing the golden hour and coastal spirit of Cox's Bazar.">
+  <title>Coxy — Cinematic Scroll Animation</title>
+  <meta name="description" content="Cinematic frame scroll animation.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -14,8 +14,8 @@
   <!-- Preloader Screen -->
   <div id="preloader" class="preloader">
     <div class="loader-content">
-      <div class="brand-sub">COASTAL CINEMATICS</div>
-      <h1 class="loader-title">COX'S BAZAR</h1>
+      <div class="brand-sub">CINEMATICS</div>
+      <h1 class="loader-title">LOADING FRAMES</h1>
       <div class="progress-bar-container">
         <div id="progress-bar" class="progress-bar"></div>
       </div>
@@ -26,33 +26,6 @@
     </div>
   </div>
 
-  <!-- Header Navigation -->
-  <header class="site-header">
-    <div class="header-left">
-      <span class="brand-logo">COXY</span>
-      <span class="badge">CINEMATIC SCROLL</span>
-    </div>
-    <div class="header-center">
-      <span id="hud-frame-counter" class="frame-tag">FRAME 001 / 240</span>
-    </div>
-    <div class="header-right">
-      <button id="sound-btn" class="hud-btn" title="Toggle Coastal Breeze Audio" aria-label="Toggle Audio">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M11 5L6 9H2v6h4l5 4V5z"/>
-          <path id="audio-wave-1" d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          <path id="audio-wave-2" d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-        </svg>
-        <span id="sound-text">Ambient Sound</span>
-      </button>
-      <button id="autoplay-btn" class="hud-btn primary" title="Auto Play Animation" aria-label="Auto Play">
-        <svg id="play-icon" class="icon" viewBox="0 0 24 24" fill="currentColor">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span id="autoplay-text">Auto Play</span>
-      </button>
-    </div>
-  </header>
-
   <!-- Main Scroll Container -->
   <main class="scroll-wrapper" id="scroll-wrapper">
     <!-- Sticky Canvas Viewport -->
@@ -61,7 +34,6 @@
 
       <!-- Vignette and Ambient Gradient Overlays -->
       <div class="cinematic-vignette"></div>
-      <div class="cinematic-gradient"></div>
 
       <!-- Scrollytelling Narrative Layers -->
       <div class="narrative-layer" id="story-1">
@@ -103,66 +75,8 @@
         </div>
         <span>SCROLL TO EXPLORE</span>
       </div>
-
-      <!-- Floating Bottom Control HUD -->
-      <div class="bottom-hud">
-        <div class="hud-timeline">
-          <span class="hud-time" id="hud-time-left">00:00</span>
-          <div class="scrubber-bar" id="scrubber-track">
-            <div class="scrubber-fill" id="scrubber-fill"></div>
-            <div class="scrubber-handle" id="scrubber-handle"></div>
-          </div>
-          <span class="hud-time" id="hud-progress-pct">0%</span>
-        </div>
-      </div>
     </div>
   </main>
-
-  <!-- Exploration Details Section -->
-  <section class="details-section">
-    <div class="details-container">
-      <div class="details-header">
-        <span class="section-tag">DESTINATION INSIGHT</span>
-        <h2>Cox's Bazar, Bangladesh</h2>
-        <p class="lead-text">
-          Stretching unbroken for over 120 kilometers, Cox's Bazar boasts the world's longest natural sandy beach.
-          From dawn's fishing fleets to dusk's crimson sunset over the Bay of Bengal, every moment here is poetry in motion.
-        </p>
-      </div>
-
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="card-icon">🌊</div>
-          <h3>120 Kilometers</h3>
-          <p>An endless expanse of smooth sand with gentle sloping shores kissed by the waves of the Bay of Bengal.</p>
-        </div>
-        <div class="feature-card">
-          <div class="card-icon">⛵</div>
-          <h3>Iconic Sampans</h3>
-          <p>Distinctive crescent-shaped wooden fishing boats that have navigated these waters for centuries.</p>
-        </div>
-        <div class="feature-card">
-          <div class="card-icon">🌅</div>
-          <h3>240 Frame Sequence</h3>
-          <p>Captured in 1080p Full HD resolution, smoothly scrubbed via GPU-accelerated HTML5 Canvas.</p>
-        </div>
-      </div>
-
-      <div class="action-footer">
-        <button id="replay-btn" class="replay-button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="1 4 1 10 7 10"></polyline>
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-          </svg>
-          <span>Replay Scroll Sequence</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <footer class="site-footer">
-    <p>Crafted for Coxy • 240 Frames Scroll Engine • High-Performance Canvas Rendering</p>
-  </footer>
 
   <script src="app.js"></script>
 </body>
