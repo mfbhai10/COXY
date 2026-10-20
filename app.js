@@ -240,7 +240,7 @@
           } else if (fraction < 0.60) {
             cinematicCaptionText.textContent = "Bay of Bengal • Echoes of the Sampan";
           } else if (fraction < 0.78) {
-            cinematicCaptionText.textContent = "Inani Coastline • Solitude by the Shore";
+            cinematicCaptionText.textContent = "Kolatoli Coastline • Solitude by the Shore";
           } else {
             cinematicCaptionText.textContent = "Golden Sunset • Towards the Open Sea";
           }
