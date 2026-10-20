@@ -8,7 +8,7 @@
   'use strict';
 
   // --- Configuration ---
-  const AERIAL_START_FRAME = 9; // Frames 001-006 were removed
+  const AERIAL_START_FRAME = 7; // Frames 001-006 were removed, starts at 007
   const AERIAL_FRAMES_COUNT = 173; // Frames 007 through 179
   const BEACH_FRAMES_COUNT = 240;
   const TOTAL_FRAMES = AERIAL_FRAMES_COUNT + BEACH_FRAMES_COUNT; // 413
@@ -30,6 +30,12 @@
   const heroCinematicCaption = document.getElementById('hero-cinematic-caption');
   const cinematicCaptionText = document.getElementById('cinematic-caption-text');
   const mainHeader = document.getElementById('main-header');
+
+  // Kolatoli Beach Scenario Glassmorphism Mini Cards
+  const kolatoliCardsContainer = document.getElementById('kolatoli-mini-cards');
+  const cardLoungers = document.getElementById('card-kolatoli-loungers');
+  const cardAtmosphere = document.getElementById('card-kolatoli-atmosphere');
+  const cardSampan = document.getElementById('card-kolatoli-sampan');
 
   const mobileNavToggle = document.getElementById('mobile-nav-toggle');
   const mobileDrawer = document.getElementById('mobile-drawer');
@@ -250,6 +256,42 @@
       // Near end of hero scroll track - transition cleanly into next section
       if (heroCinematicCaption) {
         heroCinematicCaption.style.opacity = '0';
+      }
+    }
+
+    // Kolatoli Beach Scenario Glassmorphism Mini Cards
+    if (kolatoliCardsContainer) {
+      if (fraction >= 0.44 && fraction <= 0.88) {
+        kolatoliCardsContainer.style.opacity = '1';
+        kolatoliCardsContainer.style.pointerEvents = 'auto';
+
+        if (cardLoungers) {
+          if (fraction >= 0.46) {
+            cardLoungers.classList.add('is-active');
+          } else {
+            cardLoungers.classList.remove('is-active');
+          }
+        }
+        if (cardAtmosphere) {
+          if (fraction >= 0.50) {
+            cardAtmosphere.classList.add('is-active');
+          } else {
+            cardAtmosphere.classList.remove('is-active');
+          }
+        }
+        if (cardSampan) {
+          if (fraction >= 0.54) {
+            cardSampan.classList.add('is-active');
+          } else {
+            cardSampan.classList.remove('is-active');
+          }
+        }
+      } else {
+        kolatoliCardsContainer.style.opacity = '0';
+        kolatoliCardsContainer.style.pointerEvents = 'none';
+        if (cardLoungers) cardLoungers.classList.remove('is-active');
+        if (cardAtmosphere) cardAtmosphere.classList.remove('is-active');
+        if (cardSampan) cardSampan.classList.remove('is-active');
       }
     }
 
