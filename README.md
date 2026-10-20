@@ -31,18 +31,18 @@
 
 **COXY** is a bespoke coastal discovery platform dedicated to the breathtaking geography of **Cox's Bazar, Bangladesh**—home to an unbroken 120 km stretch of golden sand touching the warm currents of the Bay of Bengal.
 
-Built with high-performance scrollytelling engineering, the website integrates a **240-frame Full HD cinematic sequence** directly into the hero experience. As visitors scroll, GPU-accelerated canvas scrubbing brings the tranquil beach walking sequence to life in real-time, accompanied by liquid glassmorphic navigation and an editorial travel journal.
+Built with high-performance scrollytelling engineering, the website integrates a **413-frame cinematic sequence** directly into the hero experience: starting with 173 frames of a 3D aerial map fly-through across the coastline and hills, smoothly dissolving into 240 frames of a tranquil beach sunset stroll. As visitors scroll, GPU-accelerated canvas scrubbing brings the journey to life in real-time, accompanied by liquid glassmorphic navigation and an editorial travel journal.
 
 ---
 
 ## ✨ Features
 
-- 🎞️ **Cinematic Scroll Animation**: Seamlessly scrub through 240 high-definition frames of a golden hour beach stroll with buttery-smooth linear interpolation (LERP) physics.
+- 🎞️ **Cinematic Dual-Phase Scroll Animation**: Seamlessly scrub through 413 high-definition frames (173 aerial drone map frames followed by 240 golden hour beach stroll frames with a crossfade dissolve transition) with buttery-smooth linear interpolation (LERP) physics.
 - ⚡ **Zero-Lag Preloader**: Pre-buffers frame sequences into memory with an animated percentage counter and progress bar, ensuring hitch-free 60 FPS playback.
 - 🧊 **Adaptive Glassmorphism Navbar**: Full-bleed blur header that dynamically adapts between a sheer coastal midnight glass state (with crisp white branding) and an editorial sand state on scroll.
 - 🏖️ **Editorial Destination Guide**: Rich travel showcases for Cox's Bazar Sea Beach, Himchari National Park, Inani Coral Beach, Maheshkhali Island, Sonadia Island, and Kolatoli Point.
 - 📱 **Fully Responsive Layout**: Designed across 12-column editorial fluid grids with bespoke breakpoints for ultra-wide displays, laptops, tablets, and smartphones.
-- 🧭 **Interactive Floating Milestone HUD**: Dynamic narrative captions appear smoothly at key chronological milestones throughout the beach walk.
+- 🧭 **Interactive Floating Milestone HUD**: Dynamic narrative captions appear smoothly at key chronological milestones throughout both the aerial coastline fly-through and the beach walk.
 - 💌 **Integrated Contact Dispatch**: Interactive topic-based inquiry form with validation and instant feedback.
 
 ---
@@ -131,10 +131,9 @@ COXY/
 │   ├── logo.png             # Official brand logo (Deep navy letters + cyan wave)
 │   └── logo-white.png       # Hero brand logo (Pure white letters + cyan wave)
 ├── frames/
-│   ├── ezgif-frame-001.jpg  # Frame sequence (1920x1080 Full HD)
-│   ├── ...                  # 240 sequential animation frames
-│   └── ezgif-frame-240.jpg  # Sunset climax frame
-├── app.js                   # Canvas renderer, LERP loop, scroll tracker, navigation
+│   ├── aerial/              # 179 sequential aerial 3D map frames (001 to 179)
+│   └── beach/               # 240 sequential golden hour beach stroll frames (001 to 240)
+├── app.js                   # Canvas renderer, LERP loop, scroll tracker, dual-sequence transition
 ├── index.html               # Main application document & design system config
 ├── style.css                # Glassmorphism, preloader, cinematic vignettes & overrides
 └── README.md                # Project documentation

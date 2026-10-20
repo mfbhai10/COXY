@@ -84,7 +84,7 @@ html {
 .loader-stats {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   font-size: 0.8rem;
   color: #b4cad3;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -99,7 +99,7 @@ html {
    Hero Scrollable Cinematic Section
    ========================================================================== */
 .hero-scroll-track {
-  height: 420vh; /* Smooth, continuous cinematic scrolling through 240 frames */
+  height: 700vh; /* Smooth, continuous cinematic scrolling through 413 frames (173 aerial + 240 beach) */
 }
 
 #sequence-canvas {
