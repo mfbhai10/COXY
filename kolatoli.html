@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COXY — Kolatoli Beach Shoreline Stroll | Cox's Bazar</title>
+  <meta name="description" content="Experience a private sunset stroll along Kolatoli Beach, Cox's Bazar. Interactive scroll-driven cinematic walkthrough along the world's longest unbroken coastline.">
+
+  <!-- Google Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary': '#003731',
+            'primary-container': '#002824',
+            'secondary': '#006b5f',
+            'secondary-fixed': '#76f4e0',
+            'secondary-fixed-dim': '#55d7c4',
+            'surface': '#0c1514',
+            'surface-bright': '#c4d7d3',
+            'on-primary': '#ffffff',
+            'outline-variant': 'rgba(255, 255, 255, 0.15)'
+          },
+          fontFamily: {
+            'headline-lg': ['Outfit', 'sans-serif'],
+            'body-lg': ['Plus Jakarta Sans', 'sans-serif'],
+            'label-md': ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Global Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Dedicated Kolatoli Beach Walk Styles */
+    .beach-scroll-track {
+      height: 400vh;
+      position: relative;
+    }
+
+    .beach-canvas-container {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #0c1514;
+    }
+
+    .glass-nav-pill {
+      background: rgba(12, 21, 20, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .stroll-progress-fill {
+      height: 3px;
+      background: linear-gradient(90deg, #76f4e0, #00d2b4, #ffffff);
+      transition: width 0.1s linear;
+    }
+
+    .card-story-slide {
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card-story-slide.is-active {
+      opacity: 1 !important;
+      transform: translate(0, 0) !important;
+    }
+
+    #card-kolatoli-loungers.is-active {
+      opacity: 1 !important;
+      transform: translateY(-50%) translateX(0) !important;
+    }
+  </style>
+</head>
+
+<body class="bg-surface text-surface-bright selection:bg-secondary-fixed selection:text-primary-container overflow-x-hidden antialiased font-body-lg">
+
+  <!-- Preloader Screen -->
+  <div id="beach-preloader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface transition-opacity duration-700">
+    <div class="relative flex flex-col items-center gap-6 max-w-sm px-6 text-center">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[36px] text-secondary-fixed animate-spin" style="animation-duration: 3s;">waves</span>
+        <span class="font-headline-lg text-2xl font-bold tracking-widest text-white">COXY</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5">
+        <h2 class="font-headline-lg text-lg text-white font-semibold">Kolatoli Beach Walk</h2>
+        <p class="font-body-lg text-xs text-primary-fixed-dim">Preparing high-definition sunset stroll frames...</p>
+      </div>
+      <div class="w-56 h-1.5 bg-primary-container rounded-full overflow-hidden border border-white/10">
+        <div id="beach-progress-bar" class="h-full bg-gradient-to-r from-secondary to-secondary-fixed w-0 transition-all duration-150"></div>
+      </div>
+      <span id="beach-loader-percent" class="font-label-md text-xs tracking-widest text-secondary-fixed font-semibold">0%</span>
+    </div>
+  </div>
+
+  <!-- Top Floating Header Bar -->
+  <header class="fixed top-0 left-0 right-0 z-40 p-4 md:p-6 pointer-events-none">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Back to 3D Aerial Map Button -->
+      <a href="index.html#map" class="pointer-events-auto inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full glass-nav-pill text-white hover:text-secondary-fixed hover:border-secondary-fixed/40 transition-all duration-300 text-xs font-label-md tracking-wider uppercase font-semibold group shadow-lg">
+        <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+        <span>Back to 3D Aerial Map</span>
+      </a>
+
+      <!-- Middle Destination Indicator Pill -->
+      <div class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full glass-nav-pill text-xs font-label-md tracking-wider uppercase">
+        <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
+        <span class="text-white font-bold">Kolatoli Beach</span>
+        <span class="text-white/40">•</span>
+        <span class="text-secondary-fixed font-medium">Shoreline Walk</span>
+      </div>
+
+      <!-- Ambient Audio Toggle & Main Link -->
+      <div class="flex items-center gap-3 pointer-events-auto">
+        <button id="btn-ambient-audio" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full glass-nav-pill text-white/90 hover:text-secondary-fixed transition-all text-xs font-label-md tracking-wider uppercase cursor-pointer" aria-label="Toggle ambient surf sound">
+          <span id="audio-icon" class="material-symbols-outlined text-[16px] text-secondary-fixed">volume_up</span>
+          <span id="audio-label" class="hidden md:inline">Ambient Waves</span>
+        </button>
+
+        <a href="index.html" class="inline-flex items-center gap-1 px-3.5 py-2 rounded-full glass-nav-pill text-white font-headline-lg text-sm font-bold tracking-widest hover:text-secondary-fixed transition-colors">
+          COXY
+        </a>
+      </div>
+    </div>
+
+    <!-- Live Stroll Progress Bar Under Top Header -->
+    <div class="max-w-7xl mx-auto mt-2 px-1">
+      <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
+        <div id="stroll-progress-indicator" class="stroll-progress-fill w-0"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hero Beach Sequence Scroll Track -->
+  <main id="beach-hero" class="beach-scroll-track">
+    <div class="beach-canvas-container">
+      <!-- High Performance HTML5 Canvas -->
+      <canvas id="beach-canvas"></canvas>
+
+      <!-- Vignette and Lighting Layers -->
+      <div class="cinematic-vignette pointer-events-none"></div>
+
+      <!-- Interactive Glassmorphic Story Cards -->
+      <div id="beach-story-cards" class="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+        <div class="relative w-full h-full max-w-7xl mx-auto px-4 sm:px-8">
+
+          <!-- Card 1: Shoreline Kitkot & Cane Loungers (Left Center) -->
+          <div id="card-kolatoli-loungers" class="card-story-slide absolute left-4 sm:left-8 md:left-12 top-[46%] sm:top-[42%] -translate-y-1/2 w-[280px] sm:w-[320px] p-5 sm:p-6 rounded-2xl glass-card transition-all duration-700 opacity-0 -translate-x-8 pointer-events-auto shadow-2xl">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed/20 text-secondary-fixed font-label-caps text-[10px] tracking-wider uppercase font-semibold border border-secondary-fixed/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed animate-pulse"></span>
+                Kolatoli Point
+              </span>
+              <span class="material-symbols-outlined text-secondary-fixed text-[22px]">beach_access</span>
+            </div>
+            <h3 class="font-headline-lg text-[18px] text-white font-bold leading-snug mb-1.5">
+              Shoreline Kitkot & Parasols
+            </h3>
+            <p class="font-body-lg text-[13px] text-primary-fixed-dim leading-relaxed mb-3">
+              Iconic woven cane beach loungers aligned with the Atlantic breakers. Watch local fishermen haul morning lines as waves kiss the golden sand.
+            </p>
+            <div class="flex items-center gap-2 pt-2.5 border-t border-white/10 text-[11px] font-label-md text-surface-bright/80">
+              <span class="material-symbols-outlined text-[15px] text-secondary-fixed">waves</span>
+              <span>World's Longest Sandy Shoreline</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Golden Hour Atmosphere & Tide Patrol (Top Right) -->
+          <div id="card-kolatoli-atmosphere" class="card-story-slide hidden sm:block absolute right-6 md:right-12 top-24 md:top-28 w-[260px] md:w-[280px] p-5 rounded-2xl glass-card transition-all duration-700 opacity-0 -translate-y-8 pointer-events-auto shadow-2xl">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed/20 text-secondary-fixed font-label-caps text-[10px] tracking-wider uppercase font-semibold border border-secondary-fixed/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed animate-ping"></span>
+                Sunset Horizon
+              </span>
+              <span class="material-symbols-outlined text-secondary-fixed text-[20px]">wb_twilight</span>
+            </div>
+            <div class="flex items-baseline gap-2 mb-1">
+              <span class="font-headline-lg text-2xl text-white font-bold">28°C</span>
+              <span class="text-xs text-primary-fixed-dim font-medium">Gentle Onshore Breeze</span>
+            </div>
+            <p class="font-body-lg text-xs text-primary-fixed-dim leading-relaxed">
+              Equestrian beach patrol & gentle low-tide reflection across miles of wet mirrored sand.
+            </p>
+          </div>
+
+          <!-- Card 3: Artisan Sampan Moon Boat (Right Bottom) -->
+          <div id="card-kolatoli-sampan" class="card-story-slide absolute right-4 sm:right-8 md:right-12 bottom-24 sm:bottom-28 w-[280px] sm:w-[320px] p-5 sm:p-6 rounded-2xl glass-card transition-all duration-700 opacity-0 translate-y-8 pointer-events-auto shadow-2xl">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-label-caps text-[10px] tracking-wider uppercase font-semibold border border-amber-400/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                Maritime Heritage
+              </span>
+              <span class="material-symbols-outlined text-amber-300 text-[22px]">sailing</span>
+            </div>
+            <h3 class="font-headline-lg text-[18px] text-white font-bold leading-snug mb-1.5">
+              Traditional Sampan Boat
+            </h3>
+            <p class="font-body-lg text-[13px] text-primary-fixed-dim leading-relaxed mb-3">
+              Crescent-keeled timber fishing vessels engineered by local artisans to gracefully crest heavy coastal surf and land directly on tidal sandbanks.
+            </p>
+            <div class="flex items-center gap-2 pt-2.5 border-t border-white/10 text-[11px] font-label-md text-surface-bright/80">
+              <span class="material-symbols-outlined text-[15px] text-amber-300">anchor</span>
+              <span>Handcrafted Timber Keel</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Floating Cinematic Bottom Caption -->
+      <div id="beach-cinematic-caption" class="absolute z-20 bottom-8 md:bottom-10 left-1/2 -translate-x-1/2 px-6 py-2.5 rounded-full bg-primary-container/90 backdrop-blur-xl border border-white/15 text-white font-label-md text-xs tracking-widest uppercase flex items-center gap-3 transition-all duration-500 shadow-2xl pointer-events-none">
+        <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
+        <span id="beach-caption-text">Kolatoli Shoreline • Walking the Sunset Breakers</span>
+      </div>
+
+      <!-- Scroll Down Cue (Initial) -->
+      <div id="beach-scroll-cue" class="absolute z-20 bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 transition-opacity duration-500 pointer-events-none">
+        <span class="font-label-md text-[11px] uppercase tracking-widest">Scroll to stroll the beach</span>
+        <span class="material-symbols-outlined text-[20px] animate-bounce">arrow_downward</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Continuation & Other Destinations Section -->
+  <section class="relative z-30 bg-surface border-t border-white/10 py-24 px-6 md:px-12">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed/20 text-secondary-fixed font-label-caps text-xs tracking-widest uppercase font-semibold mb-3">
+          <span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+          Journey Beyond
+        </span>
+        <h2 class="font-headline-lg text-3xl md:text-5xl text-white font-bold mb-4">Continue Exploring Cox's Bazar</h2>
+        <p class="font-body-lg text-surface-bright/70 text-sm md:text-base leading-relaxed">
+          From the roaring surf at Kolatoli to the untouched coral boulders at Inani, immerse yourself in Bengal's coastal wonder.
+        </p>
+      </div>
+
+      <!-- Destination Quick Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <!-- Card 1: 3D Aerial Map -->
+        <a href="index.html#map" class="group block p-6 rounded-2xl bg-primary-container/60 hover:bg-primary-container border border-white/10 hover:border-secondary-fixed/50 transition-all duration-300 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <span class="p-3 rounded-xl bg-secondary/30 text-secondary-fixed group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-[24px]">travel_explore</span>
+            </span>
+            <span class="material-symbols-outlined text-surface-bright/40 group-hover:text-secondary-fixed group-hover:translate-x-1 transition-all">arrow_forward</span>
+          </div>
+          <h3 class="font-headline-lg text-lg text-white font-bold mb-1.5">3D Aerial Panorama</h3>
+          <p class="font-body-lg text-xs text-surface-bright/70 leading-relaxed mb-4">
+            Ascend back above the clouds and explore all 10 key coastal destinations from a bird's-eye view.
+          </p>
+          <span class="inline-flex items-center gap-1 text-xs font-label-md font-semibold text-secondary-fixed uppercase tracking-wider">
+            Open Aerial Map →
+          </span>
+        </a>
+
+        <!-- Card 2: Marine Drive Highway -->
+        <a href="index.html#destinations" class="group block p-6 rounded-2xl bg-primary-container/60 hover:bg-primary-container border border-white/10 hover:border-amber-400/50 transition-all duration-300 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <span class="p-3 rounded-xl bg-amber-400/20 text-amber-300 group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-[24px]">directions_car</span>
+            </span>
+            <span class="material-symbols-outlined text-surface-bright/40 group-hover:text-amber-300 group-hover:translate-x-1 transition-all">arrow_forward</span>
+          </div>
+          <h3 class="font-headline-lg text-lg text-white font-bold mb-1.5">Marine Drive Highway</h3>
+          <p class="font-body-lg text-xs text-surface-bright/70 leading-relaxed mb-4">
+            Drive the 80km scenic coastal highway carved between emerald rainforest hilltops and the Bay of Bengal.
+          </p>
+          <span class="inline-flex items-center gap-1 text-xs font-label-md font-semibold text-amber-300 uppercase tracking-wider">
+            Discover Highway →
+          </span>
+        </a>
+
+        <!-- Card 3: Inani Coral Beach -->
+        <a href="index.html#destinations" class="group block p-6 rounded-2xl bg-primary-container/60 hover:bg-primary-container border border-white/10 hover:border-teal-400/50 transition-all duration-300 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <span class="p-3 rounded-xl bg-teal-400/20 text-teal-300 group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-[24px]">scatter_plot</span>
+            </span>
+            <span class="material-symbols-outlined text-surface-bright/40 group-hover:text-teal-300 group-hover:translate-x-1 transition-all">arrow_forward</span>
+          </div>
+          <h3 class="font-headline-lg text-lg text-white font-bold mb-1.5">Inani Coral Beach</h3>
+          <p class="font-body-lg text-xs text-surface-bright/70 leading-relaxed mb-4">
+            Marvel at ancient black coral boulders and crystal tide pools 25km south of Kolatoli.
+          </p>
+          <span class="inline-flex items-center gap-1 text-xs font-label-md font-semibold text-teal-300 uppercase tracking-wider">
+            Explore Inani →
+          </span>
+        </a>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex justify-center">
+        <a href="index.html" class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-secondary to-teal-500 hover:from-teal-400 hover:to-secondary text-white font-label-md text-sm font-bold uppercase tracking-widest shadow-xl shadow-teal-500/20 transition-all duration-300">
+          <span class="material-symbols-outlined text-[20px]">home</span>
+          <span>Return to Homepage</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ambient Audio Engine (Synthesized Wave Ambience) -->
+  <script>
+    // Web Audio API ambient ocean waves synthesizer (no external mp3 dependency required)
+    let audioCtx = null;
+    let waveGain = null;
+    let isPlayingAudio = false;
+
+    function initWaveAudio() {
+      if (audioCtx) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+
+      // Pink noise buffer generator for deep ocean breakers
+      const bufferSize = audioCtx.sampleRate * 4;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
+        b6 = white * 0.115926;
+      }
+
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      // Low pass filter simulating distance and sea air
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(450, audioCtx.currentTime);
+
+      // LFO for surf wave rhythm (approx 7 seconds per wave cycle)
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.setValueAtTime(0.14, audioCtx.currentTime);
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.setValueAtTime(220, audioCtx.currentTime);
+      lfo.connect(filter.frequency);
+
+      waveGain = audioCtx.createGain();
+      waveGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+
+      whiteNoise.connect(filter);
+      filter.connect(waveGain);
+      waveGain.connect(audioCtx.destination);
+
+      whiteNoise.start(0);
+      lfo.start(0);
+    }
+
+    const audioBtn = document.getElementById('btn-ambient-audio');
+    const audioIcon = document.getElementById('audio-icon');
+    const audioLabel = document.getElementById('audio-label');
+
+    if (audioBtn) {
+      audioBtn.addEventListener('click', () => {
+        initWaveAudio();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        if (!isPlayingAudio) {
+          waveGain.gain.setTargetAtTime(0.35, audioCtx.currentTime, 1.0);
+          isPlayingAudio = true;
+          if (audioIcon) audioIcon.textContent = 'volume_up';
+          if (audioLabel) audioLabel.textContent = 'Waves Playing';
+          audioBtn.classList.add('border-secondary-fixed/50', 'text-secondary-fixed');
+        } else {
+          waveGain.gain.setTargetAtTime(0.0, audioCtx.currentTime, 0.5);
+          isPlayingAudio = false;
+          if (audioIcon) audioIcon.textContent = 'volume_off';
+          if (audioLabel) audioLabel.textContent = 'Ambient Waves';
+          audioBtn.classList.remove('border-secondary-fixed/50', 'text-secondary-fixed');
+        }
+      });
+    }
+  </script>
+
+  <!-- Dedicated Kolatoli Beach Sequence Script -->
+  <script src="kolatoli.js"></script>
+</body>
+</html>

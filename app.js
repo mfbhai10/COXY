@@ -1,6 +1,6 @@
 /**
  * COXY — Coastal Experience & Cinematic Scroll Animation Engine
- * Preloads 840 Full HD Frames (600 Aerial 3D Map + 240 Beach Sunset Walk)
+ * Preloads 840 Full HD Frames (600 Aerial 3D Map + 480 Beach Sunset Walk)
  * Scrubs via GPU-accelerated HTML5 Canvas with smooth transition blending & LERP physics
  */
 
@@ -9,16 +9,9 @@
 
   // --- Configuration ---
   const AERIAL_START_FRAME = 1; // Frames start at 0001
-  const AERIAL_FRAMES_COUNT = 600; // 600 Aerial 3D Map frames (0001 through 0600)
-  const BEACH_FRAMES_COUNT = 240; // 240 Beach sunset stroll frames (001 through 240)
-  const TOTAL_FRAMES = AERIAL_FRAMES_COUNT + BEACH_FRAMES_COUNT; // 840
+  const TOTAL_FRAMES = 600; // 600 Aerial 3D Map frames (0001 through 0600)
   const AERIAL_PREFIX = 'frames/aerial/frame_';
-  const BEACH_PREFIX = 'frames/beach/ezgif-frame-';
   const FRAME_EXT = '.jpg';
-
-  // Dissolve transition range when crossing from aerial to beach sequence
-  const TRANSITION_START = AERIAL_FRAMES_COUNT - 6; // Frame 594
-  const TRANSITION_END = AERIAL_FRAMES_COUNT + 4;   // Frame 604
 
   // --- DOM Elements ---
   const preloader = document.getElementById('preloader');
@@ -35,11 +28,10 @@
   const cinematicCaptionText = document.getElementById('cinematic-caption-text');
   const mainHeader = document.getElementById('main-header');
 
-  // Kolatoli Beach Scenario Glassmorphism Mini Cards
-  const kolatoliCardsContainer = document.getElementById('kolatoli-mini-cards');
-  const cardLoungers = document.getElementById('card-kolatoli-loungers');
-  const cardAtmosphere = document.getElementById('card-kolatoli-atmosphere');
-  const cardSampan = document.getElementById('card-kolatoli-sampan');
+
+  // Interactive 3D Aerial Map Elements
+  const aerialInteractiveOverlay = document.getElementById('aerial-interactive-overlay');
+  const cinematicDiveFlash = document.getElementById('cinematic-dive-flash');
 
   const mobileNavToggle = document.getElementById('mobile-nav-toggle');
   const mobileDrawer = document.getElementById('mobile-drawer');
@@ -51,16 +43,10 @@
   let targetFrameIndex = 0;
   let lastDrawnFrame = -1;
 
-  // Format frame number to zero-padded string (0001 for aerial, 001 for beach)
+  // Format frame number to zero-padded string (frame_0001.jpg through frame_0600.jpg)
   function getFrameUrl(index) {
-    if (index < AERIAL_FRAMES_COUNT) {
-      const frameNum = (index + AERIAL_START_FRAME).toString().padStart(4, '0');
-      return `${AERIAL_PREFIX}${frameNum}${FRAME_EXT}`;
-    } else {
-      const beachIndex = index - AERIAL_FRAMES_COUNT;
-      const frameNum = (beachIndex + 1).toString().padStart(3, '0');
-      return `${BEACH_PREFIX}${frameNum}${FRAME_EXT}`;
-    }
+    const frameNum = (index + AERIAL_START_FRAME).toString().padStart(4, '0');
+    return `${AERIAL_PREFIX}${frameNum}${FRAME_EXT}`;
   }
 
   // --- Canvas Sizing & Drawing ---
@@ -120,34 +106,50 @@
 
   function drawFrame(frameVal) {
     const primaryIndex = Math.min(Math.max(Math.round(frameVal), 0), TOTAL_FRAMES - 1);
+    let img = frames[primaryIndex];
 
-    // Smooth cinematic dissolve transition when crossing from aerial to beach sequence
-    if (frameVal >= TRANSITION_START && frameVal <= TRANSITION_END) {
-      const lastAerialImg = frames[AERIAL_FRAMES_COUNT - 1];
-      const firstBeachImg = frames[AERIAL_FRAMES_COUNT];
-      const blend = (frameVal - TRANSITION_START) / (TRANSITION_END - TRANSITION_START);
-
-      if (lastAerialImg && lastAerialImg.complete) {
-        drawImageFitCover(lastAerialImg, 1.0);
-      }
-      if (firstBeachImg && firstBeachImg.complete) {
-        drawImageFitCover(firstBeachImg, blend);
-      }
-    } else {
-      const img = frames[primaryIndex];
-      if (img && img.complete) {
-        drawImageFitCover(img, 1.0);
+    // If current target frame is still loading, seamlessly fallback to nearest loaded frame
+    if (!img || !img.complete) {
+      for (let offset = 1; offset < 40; offset++) {
+        if (primaryIndex - offset >= 0 && frames[primaryIndex - offset] && frames[primaryIndex - offset].complete) {
+          img = frames[primaryIndex - offset];
+          break;
+        }
+        if (primaryIndex + offset < TOTAL_FRAMES && frames[primaryIndex + offset] && frames[primaryIndex + offset].complete) {
+          img = frames[primaryIndex + offset];
+          break;
+        }
       }
     }
 
+    if (img && img.complete) {
+      drawImageFitCover(img, 1.0);
+    }
     lastDrawnFrame = primaryIndex;
   }
 
   // --- Preloader System ---
+  let preloaderDismissed = false;
+
+  function dismissPreloader() {
+    if (preloaderDismissed) return;
+    preloaderDismissed = true;
+    if (preloader) preloader.classList.add('fade-out');
+    resizeCanvas();
+    updateScrollProgress();
+    drawFrame(targetFrameIndex || 0);
+  }
+
   function preloadImages() {
+    // Safety fallback: if some frame takes too long, dismiss preloader after 2.5s
+    setTimeout(() => {
+      if (loadedCount >= 10 && !preloaderDismissed) {
+        dismissPreloader();
+      }
+    }, 2500);
+
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
-      img.src = getFrameUrl(i);
 
       img.onload = () => {
         loadedCount++;
@@ -155,34 +157,32 @@
         if (progressBar) progressBar.style.width = `${percent}%`;
         if (loaderPercent) loaderPercent.textContent = `${percent}%`;
 
-        // Render initial aerial frame immediately once frame 0 is ready
-        if (i === 0) {
+        // Render initial aerial frame immediately
+        if (i === 0 || loadedCount === 1) {
           drawFrame(0);
         }
 
+        // Dismiss preloader once a solid initial buffer (60 frames) or all are ready
+        if (loadedCount >= Math.min(60, TOTAL_FRAMES) && !preloaderDismissed) {
+          dismissPreloader();
+        }
+
         if (loadedCount === TOTAL_FRAMES) {
-          onAllFramesLoaded();
+          dismissPreloader();
         }
       };
 
       img.onerror = () => {
         loadedCount++;
-        if (loadedCount === TOTAL_FRAMES) {
-          onAllFramesLoaded();
+        if (loadedCount >= Math.min(60, TOTAL_FRAMES) && !preloaderDismissed) {
+          dismissPreloader();
         }
       };
 
+      // Set src AFTER event handlers are attached
+      img.src = getFrameUrl(i);
       frames.push(img);
     }
-  }
-
-  function onAllFramesLoaded() {
-    setTimeout(() => {
-      if (preloader) preloader.classList.add('fade-out');
-      resizeCanvas();
-      drawFrame(0);
-      requestAnimationFrame(animationLoop);
-    }, 300);
   }
 
   // --- Scroll & Hero View Interaction ---
@@ -228,7 +228,7 @@
       if (heroCinematicCaption) {
         heroCinematicCaption.style.opacity = '0';
       }
-    } else if (fraction >= 0.16 && fraction < 0.94) {
+    } else if (fraction >= 0.16) {
       if (heroContent) {
         heroContent.style.opacity = '0';
         heroContent.style.pointerEvents = 'none';
@@ -240,59 +240,24 @@
       if (heroCinematicCaption) {
         heroCinematicCaption.style.opacity = '1';
         if (cinematicCaptionText) {
-          if (fraction < 0.40) {
+          if (fraction < 0.45) {
             cinematicCaptionText.textContent = "Bay of Bengal Coastline • Aerial 3D Panorama";
-          } else if (fraction < 0.71) {
+          } else if (fraction < 0.80) {
             cinematicCaptionText.textContent = "Marine Drive & Hills • Descending to the Shore";
-          } else if (fraction < 0.81) {
-            cinematicCaptionText.textContent = "Bay of Bengal • Echoes of the Sampan";
-          } else if (fraction < 0.90) {
-            cinematicCaptionText.textContent = "Kolatoli Coastline • Solitude by the Shore";
           } else {
-            cinematicCaptionText.textContent = "Golden Sunset • Towards the Open Sea";
+            cinematicCaptionText.textContent = "Interactive 3D Map • Click Kolatoli Beach to Walk Shore";
           }
         }
-      }
-    } else {
-      // Near end of hero scroll track - transition cleanly into next section
-      if (heroCinematicCaption) {
-        heroCinematicCaption.style.opacity = '0';
       }
     }
 
-    // Kolatoli Beach Scenario Glassmorphism Mini Cards
-    if (kolatoliCardsContainer) {
-      if (fraction >= 0.73 && fraction <= 0.95) {
-        kolatoliCardsContainer.style.opacity = '1';
-        kolatoliCardsContainer.style.pointerEvents = 'auto';
-
-        if (cardLoungers) {
-          if (fraction >= 0.75) {
-            cardLoungers.classList.add('is-active');
-          } else {
-            cardLoungers.classList.remove('is-active');
-          }
-        }
-        if (cardAtmosphere) {
-          if (fraction >= 0.79) {
-            cardAtmosphere.classList.add('is-active');
-          } else {
-            cardAtmosphere.classList.remove('is-active');
-          }
-        }
-        if (cardSampan) {
-          if (fraction >= 0.83) {
-            cardSampan.classList.add('is-active');
-          } else {
-            cardSampan.classList.remove('is-active');
-          }
-        }
+    // Interactive 3D Aerial Map Hotspots:
+    // Appear strictly when the frames are scrolled to about 80% of total
+    if (aerialInteractiveOverlay) {
+      if (fraction >= 0.80) {
+        aerialInteractiveOverlay.classList.add('is-active');
       } else {
-        kolatoliCardsContainer.style.opacity = '0';
-        kolatoliCardsContainer.style.pointerEvents = 'none';
-        if (cardLoungers) cardLoungers.classList.remove('is-active');
-        if (cardAtmosphere) cardAtmosphere.classList.remove('is-active');
-        if (cardSampan) cardSampan.classList.remove('is-active');
+        aerialInteractiveOverlay.classList.remove('is-active');
       }
     }
 
@@ -317,10 +282,7 @@
 
     const clampedFrame = Math.min(Math.max(currentFrameIndex, 0), TOTAL_FRAMES - 1);
 
-    if (
-      (clampedFrame >= TRANSITION_START && clampedFrame <= TRANSITION_END) ||
-      Math.round(clampedFrame) !== lastDrawnFrame
-    ) {
+    if (Math.round(clampedFrame) !== lastDrawnFrame) {
       drawFrame(clampedFrame);
     }
 
@@ -377,10 +339,82 @@
     });
   });
 
+  // --- Smooth Cinematic Transition to Separate Kolatoli Beach Page ---
+  function enterBeachSequence() {
+    // Trigger visual dive flash
+    if (cinematicDiveFlash) {
+      cinematicDiveFlash.classList.add('is-flashing');
+    }
+
+    // Smoothly navigate to the dedicated Kolatoli Beach page
+    setTimeout(() => {
+      window.location.href = 'kolatoli.html';
+    }, 380);
+  }
+
+  // --- Aerial Hotspots Interaction Setup ---
+  function setupAerialHotspots() {
+    const hotspots = document.querySelectorAll('.map-hotspot');
+    hotspots.forEach(spot => {
+      const pointId = spot.getAttribute('data-point-id');
+      const target = spot.getAttribute('data-target');
+
+      spot.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (pointId === 'kolatoli' || target === 'beach-sequence') {
+          enterBeachSequence();
+        } else if (target === 'destinations') {
+          const destSection = document.getElementById('destinations');
+          if (destSection) {
+            destSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+
+      // Keyboard accessibility (Enter or Space)
+      spot.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          spot.click();
+        }
+      });
+    });
+
+    // Quick Jump button from hero
+    const btnHeroExploreMap = document.getElementById('btn-hero-explore-map');
+    if (btnHeroExploreMap && heroSection) {
+      btnHeroExploreMap.addEventListener('click', () => {
+        const heroMaxScroll = heroSection.offsetHeight - window.innerHeight;
+        window.scrollTo({
+          top: heroMaxScroll * 0.85,
+          behavior: 'smooth'
+        });
+      });
+    }
+
+    // Direct hash landing (e.g. returning from separate Kolatoli page)
+    if (window.location.hash === '#map' && heroSection) {
+      setTimeout(() => {
+        const heroMaxScroll = heroSection.offsetHeight - window.innerHeight;
+        window.scrollTo({
+          top: heroMaxScroll * 0.85,
+          behavior: 'smooth'
+        });
+      }, 500);
+    }
+  }
+
   // --- Event Listeners ---
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
   window.addEventListener('resize', resizeCanvas);
 
   // Initialize
+  setupAerialHotspots();
+  resizeCanvas();
+  updateScrollProgress();
   preloadImages();
+  requestAnimationFrame(animationLoop);
 })();
+
