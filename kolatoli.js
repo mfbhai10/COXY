@@ -10,7 +10,7 @@
   // --- Configuration ---
   const TOTAL_FRAMES = 480;
   const BEACH_PREFIX = 'frames/beach/frame_';
-  const FRAME_EXT = '.jpg';
+  const FRAME_EXT = '.webp';
 
   // --- DOM Elements ---
   const preloader = document.getElementById('beach-preloader');
@@ -37,9 +37,9 @@
   let targetFrameIndex = 0;
   let lastDrawnFrame = -1;
 
-  // Format frame number to zero-padded string (frame_0001.jpg through frame_0480.jpg)
+  // Format frame number to zero-padded string (frame_000001.webp through frame_000480.webp)
   function getFrameUrl(index) {
-    const frameNum = (index + 1).toString().padStart(4, '0');
+    const frameNum = (index + 1).toString().padStart(6, '0');
     return `${BEACH_PREFIX}${frameNum}${FRAME_EXT}`;
   }
 
