@@ -60,6 +60,7 @@
     }
 
     const img = new Image();
+    img.decoding = 'async'; // Offload image decoding from main UI thread to prevent scroll hitching
     if (priority === 'high' && 'fetchPriority' in img) {
       img.fetchPriority = 'high';
     }
@@ -97,10 +98,17 @@
     return img;
   }
 
-  // Active Scroll Window Prioritization: load frames surrounding current scroll target
+  // Active Direction-Aware Predictive Window: pre-fetches heavily in scroll direction
+  let lastScrollTarget = 0;
   function loadSurroundingFrames(centerIndex) {
-    const start = Math.max(0, centerIndex - 10);
-    const end = Math.min(TOTAL_FRAMES - 1, centerIndex + 25);
+    const isScrollingForward = centerIndex >= lastScrollTarget;
+    lastScrollTarget = centerIndex;
+
+    const lookAhead = isScrollingForward ? 35 : 15;
+    const lookBehind = isScrollingForward ? 10 : 25;
+
+    const start = Math.max(0, centerIndex - lookBehind);
+    const end = Math.min(TOTAL_FRAMES - 1, centerIndex + lookAhead);
     for (let i = start; i <= end; i++) {
       if (!frames[i]) {
         loadFrame(i, 'high');
@@ -341,11 +349,19 @@
     }
   }
 
-  // --- Smooth LERP Animation Loop ---
-  function animationLoop() {
+  // --- Smooth Refresh-Rate Independent Damping Animation Loop ---
+  let lastTimestamp = performance.now();
+
+  function animationLoop(timestamp) {
+    const now = timestamp || performance.now();
+    const dt = Math.min((now - lastTimestamp) / 1000, 0.1) || 0.016;
+    lastTimestamp = now;
+
     const diff = targetFrameIndex - currentFrameIndex;
     if (Math.abs(diff) > 0.001) {
-      currentFrameIndex += diff * 0.16;
+      // Exponential decay: smooth on both 60Hz and 120Hz ProMotion displays
+      const decay = 1 - Math.exp(-14 * dt);
+      currentFrameIndex += diff * decay;
     } else {
       currentFrameIndex = targetFrameIndex;
     }
