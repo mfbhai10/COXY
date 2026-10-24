@@ -31,13 +31,13 @@
 
 **COXY** is a bespoke coastal discovery platform dedicated to the breathtaking geography of **Cox's Bazar, Bangladesh**—home to an unbroken 120 km stretch of golden sand touching the warm currents of the Bay of Bengal.
 
-Built with high-performance scrollytelling engineering, the website integrates a **413-frame cinematic sequence** directly into the hero experience: starting with 173 frames of a 3D aerial map fly-through across the coastline and hills, smoothly dissolving into 240 frames of a tranquil beach sunset stroll. As visitors scroll, GPU-accelerated canvas scrubbing brings the journey to life in real-time, accompanied by liquid glassmorphic navigation and an editorial travel journal.
+Built with high-performance scrollytelling engineering, the website integrates an **840-frame cinematic sequence** directly into the hero experience: starting with 600 frames of a 3D aerial map fly-through across the coastline and hills, smoothly dissolving into 240 frames of a tranquil beach sunset stroll. As visitors scroll, GPU-accelerated canvas scrubbing brings the journey to life in real-time, accompanied by liquid glassmorphic navigation and an editorial travel journal.
 
 ---
 
 ## ✨ Features
 
-- 🎞️ **Cinematic Dual-Phase Scroll Animation**: Seamlessly scrub through 413 high-definition frames (173 aerial drone map frames followed by 240 golden hour beach stroll frames with a crossfade dissolve transition) with buttery-smooth linear interpolation (LERP) physics.
+- 🎞️ **Cinematic Dual-Phase Scroll Animation**: Seamlessly scrub through 840 high-definition frames (600 aerial drone map frames followed by 240 golden hour beach stroll frames with a crossfade dissolve transition) with buttery-smooth linear interpolation (LERP) physics.
 - ⚡ **Zero-Lag Preloader**: Pre-buffers frame sequences into memory with an animated percentage counter and progress bar, ensuring hitch-free 60 FPS playback.
 - 🧊 **Adaptive Glassmorphism Navbar**: Full-bleed blur header that dynamically adapts between a sheer coastal midnight glass state (with crisp white branding) and an editorial sand state on scroll.
 - 🏖️ **Editorial Destination Guide**: Rich travel showcases for Cox's Bazar Sea Beach, Himchari National Park, Inani Coral Beach, Maheshkhali Island, Sonadia Island, and Kolatoli Point.
@@ -131,7 +131,7 @@ COXY/
 │   ├── logo.png             # Official brand logo (Deep navy letters + cyan wave)
 │   └── logo-white.png       # Hero brand logo (Pure white letters + cyan wave)
 ├── frames/
-│   ├── aerial/              # 179 sequential aerial 3D map frames (001 to 179)
+│   ├── aerial/              # 600 sequential aerial 3D map frames (0001 to 0600)
 │   └── beach/               # 240 sequential golden hour beach stroll frames (001 to 240)
 ├── app.js                   # Canvas renderer, LERP loop, scroll tracker, dual-sequence transition
 ├── index.html               # Main application document & design system config

@@ -1,6 +1,6 @@
 /**
  * COXY — Coastal Experience & Cinematic Scroll Animation Engine
- * Preloads 413 Full HD Frames (173 Aerial 3D Map + 240 Beach Sunset Walk)
+ * Preloads 840 Full HD Frames (600 Aerial 3D Map + 240 Beach Sunset Walk)
  * Scrubs via GPU-accelerated HTML5 Canvas with smooth transition blending & LERP physics
  */
 
@@ -8,13 +8,17 @@
   'use strict';
 
   // --- Configuration ---
-  const AERIAL_START_FRAME = 7; // Frames 001-006 were removed, starts at 007
-  const AERIAL_FRAMES_COUNT = 173; // Frames 007 through 179
-  const BEACH_FRAMES_COUNT = 240;
-  const TOTAL_FRAMES = AERIAL_FRAMES_COUNT + BEACH_FRAMES_COUNT; // 413
-  const AERIAL_PREFIX = 'frames/aerial/ezgif-frame-';
+  const AERIAL_START_FRAME = 1; // Frames start at 0001
+  const AERIAL_FRAMES_COUNT = 600; // 600 Aerial 3D Map frames (0001 through 0600)
+  const BEACH_FRAMES_COUNT = 240; // 240 Beach sunset stroll frames (001 through 240)
+  const TOTAL_FRAMES = AERIAL_FRAMES_COUNT + BEACH_FRAMES_COUNT; // 840
+  const AERIAL_PREFIX = 'frames/aerial/frame_';
   const BEACH_PREFIX = 'frames/beach/ezgif-frame-';
   const FRAME_EXT = '.jpg';
+
+  // Dissolve transition range when crossing from aerial to beach sequence
+  const TRANSITION_START = AERIAL_FRAMES_COUNT - 6; // Frame 594
+  const TRANSITION_END = AERIAL_FRAMES_COUNT + 4;   // Frame 604
 
   // --- DOM Elements ---
   const preloader = document.getElementById('preloader');
@@ -47,10 +51,10 @@
   let targetFrameIndex = 0;
   let lastDrawnFrame = -1;
 
-  // Format frame number to 3-digit zero-padded string (007, 008, ...)
+  // Format frame number to zero-padded string (0001 for aerial, 001 for beach)
   function getFrameUrl(index) {
     if (index < AERIAL_FRAMES_COUNT) {
-      const frameNum = (index + AERIAL_START_FRAME).toString().padStart(3, '0');
+      const frameNum = (index + AERIAL_START_FRAME).toString().padStart(4, '0');
       return `${AERIAL_PREFIX}${frameNum}${FRAME_EXT}`;
     } else {
       const beachIndex = index - AERIAL_FRAMES_COUNT;
@@ -118,9 +122,6 @@
     const primaryIndex = Math.min(Math.max(Math.round(frameVal), 0), TOTAL_FRAMES - 1);
 
     // Smooth cinematic dissolve transition when crossing from aerial to beach sequence
-    const TRANSITION_START = AERIAL_FRAMES_COUNT - 3; // Frame 176
-    const TRANSITION_END = AERIAL_FRAMES_COUNT + 2;   // Frame 181
-
     if (frameVal >= TRANSITION_START && frameVal <= TRANSITION_END) {
       const lastAerialImg = frames[AERIAL_FRAMES_COUNT - 1];
       const firstBeachImg = frames[AERIAL_FRAMES_COUNT];
@@ -197,9 +198,9 @@
     targetFrameIndex = fraction * (TOTAL_FRAMES - 1);
 
     // Hero Text & Caption Transitions based on scroll fraction
-    // Aerial Phase: fraction 0.00 to ~0.43 (179 frames)
-    // Beach Phase:  fraction ~0.43 to 1.00 (240 frames)
-    if (fraction < 0.08) {
+    // Aerial Phase: fraction 0.00 to ~0.71 (600 frames)
+    // Beach Phase:  fraction ~0.71 to 1.00 (240 frames)
+    if (fraction < 0.06) {
       if (heroContent) {
         heroContent.style.opacity = '1';
         heroContent.style.pointerEvents = 'auto';
@@ -212,8 +213,8 @@
       if (heroCinematicCaption) {
         heroCinematicCaption.style.opacity = '0';
       }
-    } else if (fraction >= 0.08 && fraction < 0.20) {
-      const fadeProgress = (fraction - 0.08) / 0.12;
+    } else if (fraction >= 0.06 && fraction < 0.16) {
+      const fadeProgress = (fraction - 0.06) / 0.10;
       const opacity = Math.max(0, 1 - fadeProgress);
       if (heroContent) {
         heroContent.style.opacity = opacity.toFixed(2);
@@ -227,7 +228,7 @@
       if (heroCinematicCaption) {
         heroCinematicCaption.style.opacity = '0';
       }
-    } else if (fraction >= 0.20 && fraction < 0.94) {
+    } else if (fraction >= 0.16 && fraction < 0.94) {
       if (heroContent) {
         heroContent.style.opacity = '0';
         heroContent.style.pointerEvents = 'none';
@@ -239,13 +240,13 @@
       if (heroCinematicCaption) {
         heroCinematicCaption.style.opacity = '1';
         if (cinematicCaptionText) {
-          if (fraction < 0.32) {
+          if (fraction < 0.40) {
             cinematicCaptionText.textContent = "Bay of Bengal Coastline • Aerial 3D Panorama";
-          } else if (fraction < 0.43) {
+          } else if (fraction < 0.71) {
             cinematicCaptionText.textContent = "Marine Drive & Hills • Descending to the Shore";
-          } else if (fraction < 0.60) {
+          } else if (fraction < 0.81) {
             cinematicCaptionText.textContent = "Bay of Bengal • Echoes of the Sampan";
-          } else if (fraction < 0.78) {
+          } else if (fraction < 0.90) {
             cinematicCaptionText.textContent = "Kolatoli Coastline • Solitude by the Shore";
           } else {
             cinematicCaptionText.textContent = "Golden Sunset • Towards the Open Sea";
@@ -261,26 +262,26 @@
 
     // Kolatoli Beach Scenario Glassmorphism Mini Cards
     if (kolatoliCardsContainer) {
-      if (fraction >= 0.44 && fraction <= 0.88) {
+      if (fraction >= 0.73 && fraction <= 0.95) {
         kolatoliCardsContainer.style.opacity = '1';
         kolatoliCardsContainer.style.pointerEvents = 'auto';
 
         if (cardLoungers) {
-          if (fraction >= 0.46) {
+          if (fraction >= 0.75) {
             cardLoungers.classList.add('is-active');
           } else {
             cardLoungers.classList.remove('is-active');
           }
         }
         if (cardAtmosphere) {
-          if (fraction >= 0.50) {
+          if (fraction >= 0.79) {
             cardAtmosphere.classList.add('is-active');
           } else {
             cardAtmosphere.classList.remove('is-active');
           }
         }
         if (cardSampan) {
-          if (fraction >= 0.54) {
+          if (fraction >= 0.83) {
             cardSampan.classList.add('is-active');
           } else {
             cardSampan.classList.remove('is-active');
@@ -315,8 +316,6 @@
     }
 
     const clampedFrame = Math.min(Math.max(currentFrameIndex, 0), TOTAL_FRAMES - 1);
-    const TRANSITION_START = AERIAL_FRAMES_COUNT - 3;
-    const TRANSITION_END = AERIAL_FRAMES_COUNT + 2;
 
     if (
       (clampedFrame >= TRANSITION_START && clampedFrame <= TRANSITION_END) ||

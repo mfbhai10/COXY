@@ -99,7 +99,7 @@ html {
    Hero Scrollable Cinematic Section
    ========================================================================== */
 .hero-scroll-track {
-  height: 700vh; /* Smooth, continuous cinematic scrolling through 413 frames (173 aerial + 240 beach) */
+  height: 800vh; /* Smooth, continuous cinematic scrolling through 840 frames (600 aerial + 240 beach) */
 }
 
 #sequence-canvas {
