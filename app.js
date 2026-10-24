@@ -8,10 +8,10 @@
   'use strict';
 
   // --- Configuration ---
-  const AERIAL_START_FRAME = 1; // Frames start at 0001
-  const TOTAL_FRAMES = 600; // 600 Aerial 3D Map frames (0001 through 0600)
+  const AERIAL_START_FRAME = 1; // Frames start at 000001
+  const TOTAL_FRAMES = 600; // 600 Aerial 3D Map frames (000001 through 000600)
   const AERIAL_PREFIX = 'frames/aerial/frame_';
-  const FRAME_EXT = '.jpg';
+  const FRAME_EXT = '.webp';
 
   // --- DOM Elements ---
   const preloader = document.getElementById('preloader');
@@ -43,9 +43,9 @@
   let targetFrameIndex = 0;
   let lastDrawnFrame = -1;
 
-  // Format frame number to zero-padded string (frame_0001.jpg through frame_0600.jpg)
+  // Format frame number to zero-padded string (frame_000001.webp through frame_000600.webp)
   function getFrameUrl(index) {
-    const frameNum = (index + AERIAL_START_FRAME).toString().padStart(4, '0');
+    const frameNum = (index + AERIAL_START_FRAME).toString().padStart(6, '0');
     return `${AERIAL_PREFIX}${frameNum}${FRAME_EXT}`;
   }
 
