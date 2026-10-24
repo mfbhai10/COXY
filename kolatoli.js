@@ -95,7 +95,7 @@
     let img = frames[primaryIndex];
 
     if (!img || !img.complete) {
-      for (let offset = 1; offset < 30; offset++) {
+      for (let offset = 1; offset < 60; offset++) {
         if (primaryIndex - offset >= 0 && frames[primaryIndex - offset] && frames[primaryIndex - offset].complete) {
           img = frames[primaryIndex - offset];
           break;
@@ -113,11 +113,42 @@
     lastDrawnFrame = primaryIndex;
   }
 
-  // --- Preloader System ---
+  // --- Progressive Fast Buffer Preloader ---
+  const INITIAL_BUFFER_FRAMES = 24; // Dismisses loading screen as soon as 24 frames are ready (<1s)
+  let preloaderDismissed = false;
+
+  function dismissPreloader() {
+    if (preloaderDismissed) return;
+    preloaderDismissed = true;
+
+    if (preloader) {
+      preloader.style.opacity = '0';
+      preloader.style.pointerEvents = 'none';
+      setTimeout(() => {
+        if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
+      }, 700);
+    }
+
+    resizeCanvas();
+    updateScrollProgress();
+    drawFrame(targetFrameIndex || 0);
+  }
+
   function preloadImages() {
+    // Safety fallback: Reveal within 1.8s if at least 6 frames are loaded
+    setTimeout(() => {
+      if (loadedCount >= 6 && !preloaderDismissed) {
+        dismissPreloader();
+      }
+    }, 1800);
+
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
-      img.src = getFrameUrl(i);
+
+      // High priority for initial buffer
+      if (i < INITIAL_BUFFER_FRAMES && 'fetchPriority' in img) {
+        img.fetchPriority = 'high';
+      }
 
       img.onload = () => {
         loadedCount++;
@@ -126,38 +157,31 @@
         if (loaderPercent) loaderPercent.textContent = `${percent}%`;
 
         // Render initial beach frame immediately once frame 0 is ready
-        if (i === 0) {
+        if (i === 0 || loadedCount === 1) {
           drawFrame(0);
         }
 
-        if (loadedCount === TOTAL_FRAMES) {
-          onAllFramesLoaded();
+        // Fast reveal once the initial buffer (24 frames) is ready
+        if (loadedCount >= INITIAL_BUFFER_FRAMES && !preloaderDismissed) {
+          dismissPreloader();
+        }
+
+        if (loadedCount === TOTAL_FRAMES && !preloaderDismissed) {
+          dismissPreloader();
         }
       };
 
       img.onerror = () => {
         loadedCount++;
-        if (loadedCount === TOTAL_FRAMES) {
-          onAllFramesLoaded();
+        if (loadedCount >= INITIAL_BUFFER_FRAMES && !preloaderDismissed) {
+          dismissPreloader();
         }
       };
 
+      // Set src after setting handlers
+      img.src = getFrameUrl(i);
       frames.push(img);
     }
-  }
-
-  function onAllFramesLoaded() {
-    setTimeout(() => {
-      if (preloader) {
-        preloader.style.opacity = '0';
-        preloader.style.pointerEvents = 'none';
-        setTimeout(() => preloader.remove(), 700);
-      }
-      resizeCanvas();
-      updateScrollProgress();
-      drawFrame(targetFrameIndex || 0);
-      requestAnimationFrame(animationLoop);
-    }, 250);
   }
 
   // --- Scroll Tracking & Story Milestones ---
