@@ -37,7 +37,7 @@
   const mobileDrawer = document.getElementById('mobile-drawer');
 
   // --- State Variables ---
-  const frames = [];
+  const frames = new Array(TOTAL_FRAMES).fill(null);
   let loadedCount = 0;
   let currentFrameIndex = 0;
   let targetFrameIndex = 0;
@@ -47,6 +47,65 @@
   function getFrameUrl(index) {
     const frameNum = (index + AERIAL_START_FRAME).toString().padStart(4, '0');
     return `${AERIAL_PREFIX}${frameNum}${FRAME_EXT}`;
+  }
+
+  // --- Dynamic Multi-Tier Frame Loader ---
+  function loadFrame(index, priority = 'auto') {
+    if (index < 0 || index >= TOTAL_FRAMES) return null;
+    if (frames[index]) {
+      if (priority === 'high' && 'fetchPriority' in frames[index] && frames[index].fetchPriority !== 'high') {
+        frames[index].fetchPriority = 'high';
+      }
+      return frames[index];
+    }
+
+    const img = new Image();
+    if (priority === 'high' && 'fetchPriority' in img) {
+      img.fetchPriority = 'high';
+    }
+
+    img.onload = () => {
+      loadedCount++;
+      const percent = Math.floor((loadedCount / TOTAL_FRAMES) * 100);
+      if (progressBar) progressBar.style.width = `${percent}%`;
+      if (loaderPercent) loaderPercent.textContent = `${percent}%`;
+
+      // Render initial aerial frame immediately once frame 0 is ready
+      if (index === 0 || loadedCount === 1) {
+        drawFrame(0);
+      }
+
+      // Fast reveal once the initial buffer (24 frames) is ready
+      if (loadedCount >= INITIAL_BUFFER_FRAMES && !preloaderDismissed) {
+        dismissPreloader();
+      }
+
+      if (loadedCount === TOTAL_FRAMES && !preloaderDismissed) {
+        dismissPreloader();
+      }
+    };
+
+    img.onerror = () => {
+      loadedCount++;
+      if (loadedCount >= INITIAL_BUFFER_FRAMES && !preloaderDismissed) {
+        dismissPreloader();
+      }
+    };
+
+    img.src = getFrameUrl(index);
+    frames[index] = img;
+    return img;
+  }
+
+  // Active Scroll Window Prioritization: load frames surrounding current scroll target
+  function loadSurroundingFrames(centerIndex) {
+    const start = Math.max(0, centerIndex - 10);
+    const end = Math.min(TOTAL_FRAMES - 1, centerIndex + 25);
+    for (let i = start; i <= end; i++) {
+      if (!frames[i]) {
+        loadFrame(i, 'high');
+      }
+    }
   }
 
   // --- Canvas Sizing & Drawing ---
@@ -104,31 +163,36 @@
     }
   }
 
+  // Resilient Canvas Drawing with Outward Symmetrical Fallback Search
   function drawFrame(frameVal) {
     const primaryIndex = Math.min(Math.max(Math.round(frameVal), 0), TOTAL_FRAMES - 1);
     let img = frames[primaryIndex];
 
     // If current target frame is still loading, seamlessly fallback to nearest loaded frame
-    if (!img || !img.complete) {
-      for (let offset = 1; offset < 40; offset++) {
-        if (primaryIndex - offset >= 0 && frames[primaryIndex - offset] && frames[primaryIndex - offset].complete) {
-          img = frames[primaryIndex - offset];
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+        const prevIdx = primaryIndex - offset;
+        if (prevIdx >= 0 && frames[prevIdx] && frames[prevIdx].complete && frames[prevIdx].naturalWidth > 0) {
+          img = frames[prevIdx];
           break;
         }
-        if (primaryIndex + offset < TOTAL_FRAMES && frames[primaryIndex + offset] && frames[primaryIndex + offset].complete) {
-          img = frames[primaryIndex + offset];
+        const nextIdx = primaryIndex + offset;
+        if (nextIdx < TOTAL_FRAMES && frames[nextIdx] && frames[nextIdx].complete && frames[nextIdx].naturalWidth > 0) {
+          img = frames[nextIdx];
           break;
         }
       }
     }
 
-    if (img && img.complete) {
+    if (img && img.complete && img.naturalWidth > 0) {
       drawImageFitCover(img, 1.0);
+      lastDrawnFrame = primaryIndex;
     }
-    lastDrawnFrame = primaryIndex;
   }
 
-  // --- Preloader System ---
+  // --- Preloader System (Apple-Style Keyframe Streaming) ---
+  const INITIAL_BUFFER_FRAMES = 24;
+  const KEYFRAME_INTERVAL = 10;
   let preloaderDismissed = false;
 
   function dismissPreloader() {
@@ -141,48 +205,53 @@
   }
 
   function preloadImages() {
-    // Safety fallback: if some frame takes too long, dismiss preloader after 2.5s
+    // Safety fallback: reveal after 1.8s if at least 6 frames are loaded
     setTimeout(() => {
-      if (loadedCount >= 10 && !preloaderDismissed) {
+      if (loadedCount >= 6 && !preloaderDismissed) {
         dismissPreloader();
       }
-    }, 2500);
+    }, 1800);
 
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-
-      img.onload = () => {
-        loadedCount++;
-        const percent = Math.floor((loadedCount / TOTAL_FRAMES) * 100);
-        if (progressBar) progressBar.style.width = `${percent}%`;
-        if (loaderPercent) loaderPercent.textContent = `${percent}%`;
-
-        // Render initial aerial frame immediately
-        if (i === 0 || loadedCount === 1) {
-          drawFrame(0);
-        }
-
-        // Dismiss preloader once a solid initial buffer (60 frames) or all are ready
-        if (loadedCount >= Math.min(60, TOTAL_FRAMES) && !preloaderDismissed) {
-          dismissPreloader();
-        }
-
-        if (loadedCount === TOTAL_FRAMES) {
-          dismissPreloader();
-        }
-      };
-
-      img.onerror = () => {
-        loadedCount++;
-        if (loadedCount >= Math.min(60, TOTAL_FRAMES) && !preloaderDismissed) {
-          dismissPreloader();
-        }
-      };
-
-      // Set src AFTER event handlers are attached
-      img.src = getFrameUrl(i);
-      frames.push(img);
+    // Tier 1: Initial Buffer (frames 0 to 24) with high priority
+    for (let i = 0; i < INITIAL_BUFFER_FRAMES; i++) {
+      loadFrame(i, 'high');
     }
+
+    // Tier 2: Uniform Keyframes across entire sequence (every 10th frame)
+    // Ensures no matter how fast the user scrolls, a frame within 5 frames is always available
+    setTimeout(() => {
+      for (let i = INITIAL_BUFFER_FRAMES; i < TOTAL_FRAMES; i += KEYFRAME_INTERVAL) {
+        loadFrame(i, 'high');
+      }
+      loadFrame(TOTAL_FRAMES - 1, 'high'); // Ensure final frame is ready
+
+      // Tier 3 & 4: Progressive background fill of remaining frames in small batches
+      startBackgroundPacedLoading();
+    }, 100);
+  }
+
+  // Paced background loader: loads remaining unallocated frames without saturating connection
+  function startBackgroundPacedLoading() {
+    let nextIndex = 0;
+    const BATCH_SIZE = 4;
+    const INTERVAL_MS = 60;
+
+    function queueBatch() {
+      let dispatched = 0;
+      while (nextIndex < TOTAL_FRAMES && dispatched < BATCH_SIZE) {
+        if (!frames[nextIndex]) {
+          loadFrame(nextIndex, 'low');
+          dispatched++;
+        }
+        nextIndex++;
+      }
+
+      if (nextIndex < TOTAL_FRAMES) {
+        setTimeout(queueBatch, INTERVAL_MS);
+      }
+    }
+
+    setTimeout(queueBatch, 300);
   }
 
   // --- Scroll & Hero View Interaction ---
@@ -196,6 +265,7 @@
     const fraction = Math.min(Math.max(scrollY / heroMaxScroll, 0), 1);
 
     targetFrameIndex = fraction * (TOTAL_FRAMES - 1);
+    loadSurroundingFrames(Math.round(targetFrameIndex));
 
     // Hero Text & Caption Transitions based on scroll fraction
     // Aerial Phase: fraction 0.00 to ~0.71 (600 frames)
